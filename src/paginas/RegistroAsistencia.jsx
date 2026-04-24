@@ -31,6 +31,9 @@ export default function RegistroAsistencia() {
           `${API_URL}/api/estudiantes`
         );
 
+        console.log("API_URL:", API_URL);
+        console.log("Estudiantes cargados:", respuestaEstudiantes.data);
+
         setEstudiantes(respuestaEstudiantes.data);
       } catch (error) {
         console.error("Error al cargar estudiantes:", error);
@@ -104,7 +107,11 @@ export default function RegistroAsistencia() {
           onChange={(e) => setEstudianteId(e.target.value)}
           className="registro-asistencia-input"
         >
-          <option value="">Selecciona tu nombre</option>
+          <option value="">
+            {estudiantes.length === 0
+              ? "No hay estudiantes cargados"
+              : "Selecciona tu nombre"}
+          </option>
 
           {estudiantes.map((estudiante) => (
             <option key={estudiante.id} value={estudiante.id}>
@@ -112,6 +119,10 @@ export default function RegistroAsistencia() {
             </option>
           ))}
         </select>
+
+        <p style={{ fontSize: "13px", color: "#64748b" }}>
+          Estudiantes encontrados: {estudiantes.length}
+        </p>
 
         <label className="registro-asistencia-label">
           Tomar o subir selfie

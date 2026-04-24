@@ -18,6 +18,7 @@ export default function RegistroAsistencia() {
       try {
         setCargando(true);
 
+        // 🔹 1. Obtener sesión
         const respuestaSesion = await axios.get(
           `${API_URL}/api/asistencias/sesion/${token}`
         );
@@ -25,31 +26,20 @@ export default function RegistroAsistencia() {
         const datosSesion = respuestaSesion.data;
         setSesion(datosSesion);
 
-        let listaEstudiantes = [];
+        // 🔹 2. Obtener TODOS los estudiantes (SIN FILTRO)
+        const respuestaEstudiantes = await axios.get(
+          `${API_URL}/api/estudiantes`
+        );
 
-        try {
-          const respuestaEstudiantes = await axios.get(
-            `${API_URL}/api/asistencias/estudiantes-clase/${datosSesion.clase_id}`
-          );
+        console.log("Sesión:", datosSesion);
+        console.log("Estudiantes:", respuestaEstudiantes.data);
 
-          listaEstudiantes = respuestaEstudiantes.data;
-        } catch (error) {
-          console.warn("No cargó estudiantes por clase, usando respaldo...");
-        }
+        // 🔹 3. Mostrar todos (esto arregla tu problema)
+        setEstudiantes(respuestaEstudiantes.data);
 
-        if (!Array.isArray(listaEstudiantes) || listaEstudiantes.length === 0) {
-          const respuestaTodos = await axios.get(`${API_URL}/api/estudiantes`);
-
-          listaEstudiantes = respuestaTodos.data.filter(
-            (estudiante) =>
-              String(estudiante.clase_id) === String(datosSesion.clase_id)
-          );
-        }
-
-        setEstudiantes(listaEstudiantes);
       } catch (error) {
-        console.error("Error al cargar datos de asistencia:", error);
-        alert("No se pudo cargar la sesión o los estudiantes");
+        console.error("Error al cargar datos:", error);
+        alert("Error al cargar estudiantes o sesión");
       } finally {
         setCargando(false);
       }
@@ -87,8 +77,8 @@ export default function RegistroAsistencia() {
       setEstudianteId("");
       setSelfie(null);
     } catch (error) {
-      console.error("Error al registrar asistencia:", error);
-      alert(error?.response?.data?.mensaje || "No se pudo registrar asistencia");
+      console.error("Error al registrar:", error);
+      alert(error?.response?.data?.mensaje || "Error al registrar asistencia");
     }
   };
 
@@ -96,10 +86,8 @@ export default function RegistroAsistencia() {
     return (
       <div className="registro-asistencia-contenedor">
         <div className="registro-asistencia-tarjeta">
-          <h1 className="registro-asistencia-titulo">Registro de Asistencia</h1>
-          <p className="registro-asistencia-subtitulo">
-            Cargando información...
-          </p>
+          <h1>Registro de Asistencia</h1>
+          <p>Cargando datos...</p>
         </div>
       </div>
     );
@@ -108,7 +96,9 @@ export default function RegistroAsistencia() {
   return (
     <div className="registro-asistencia-contenedor">
       <div className="registro-asistencia-tarjeta">
-        <h1 className="registro-asistencia-titulo">Registro de Asistencia</h1>
+        <h1 className="registro-asistencia-titulo">
+          Registro de Asistencia
+        </h1>
 
         {sesion && (
           <p className="registro-asistencia-subtitulo">
@@ -116,6 +106,7 @@ export default function RegistroAsistencia() {
           </p>
         )}
 
+        {/* 🔽 SELECT ESTUDIANTES */}
         <select
           value={estudianteId}
           onChange={(e) => setEstudianteId(e.target.value)}
@@ -131,11 +122,12 @@ export default function RegistroAsistencia() {
         </select>
 
         {estudiantes.length === 0 && (
-          <p style={{ color: "red", fontWeight: "bold" }}>
-            No hay estudiantes cargados para esta clase.
+          <p style={{ color: "red" }}>
+            No hay estudiantes cargados.
           </p>
         )}
 
+        {/* 📷 SELFIE */}
         <label className="registro-asistencia-label">
           Tomar o subir selfie
         </label>
@@ -148,10 +140,10 @@ export default function RegistroAsistencia() {
           className="registro-asistencia-input"
         />
 
+        {/* 🔘 BOTÓN */}
         <button
           onClick={registrar}
           className="registro-asistencia-boton"
-          disabled={estudiantes.length === 0}
         >
           Registrar asistencia
         </button>

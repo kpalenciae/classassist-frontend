@@ -14,7 +14,7 @@ export default function Asistencias() {
 
   const obtenerClases = async () => {
     try {
-      const respuesta = await axios.get(`${API_URL}/api/clases`)
+      const respuesta = await axios.get(`${API_URL}/api/clases`);
       setClases(respuesta.data);
 
       if (respuesta.data.length > 0 && !claseSeleccionada) {
@@ -33,13 +33,21 @@ export default function Asistencias() {
 
     try {
       const respuesta = await axios.post(`${API_URL}/api/asistencias/sesion`, {
-          clase_id: claseSeleccionada,
-        }
-      );
+        clase_id: claseSeleccionada,
+      });
 
       setQr(respuesta.data.qr);
-      setEnlace(respuesta.data.enlace);
+
+      const token =
+        respuesta.data.token_qr ||
+        respuesta.data.token ||
+        respuesta.data.enlace?.split("/").pop();
+
+      const enlaceCorrecto = `${window.location.origin}/asistencia/${token}`;
+
+      setEnlace(enlaceCorrecto);
       setSesionId(respuesta.data.sesion_id);
+
       obtenerAsistencias(respuesta.data.sesion_id);
     } catch (error) {
       console.error("Error al crear sesión:", error);
@@ -49,7 +57,8 @@ export default function Asistencias() {
 
   const obtenerAsistencias = async (idSesion) => {
     try {
-      const respuesta = await axios.get(`${API_URL}/api/asistencias/lista/${idSesion}`
+      const respuesta = await axios.get(
+        `${API_URL}/api/asistencias/lista/${idSesion}`
       );
       setAsistencias(respuesta.data);
     } catch (error) {
@@ -82,7 +91,8 @@ export default function Asistencias() {
         <div className="page-hero">
           <h1>Asistencia con QR</h1>
           <p>
-            Genera sesiones de asistencia y registra a los estudiantes en tiempo real.
+            Genera sesiones de asistencia y registra a los estudiantes en tiempo
+            real.
           </p>
         </div>
 
@@ -118,7 +128,9 @@ export default function Asistencias() {
                 border: "1px solid #e2e8f0",
               }}
             >
-              <h3 style={{ margin: "0 0 8px 0" }}>Asistencias registradas</h3>
+              <h3 style={{ margin: "0 0 8px 0" }}>
+                Asistencias registradas
+              </h3>
               <p style={{ margin: 0, fontSize: "22px", fontWeight: "bold" }}>
                 {asistencias.length}
               </p>
@@ -142,7 +154,23 @@ export default function Asistencias() {
               }}
             />
 
-            <p style={{ wordBreak: "break-all", color: "#64748b" }}>{enlace}</p>
+            <p style={{ wordBreak: "break-all", color: "#64748b" }}>
+              {enlace}
+            </p>
+
+            <a
+              href={enlace}
+              target="_blank"
+              rel="noreferrer"
+              className="btn-primary-modern"
+              style={{
+                display: "inline-block",
+                textDecoration: "none",
+                marginTop: "10px",
+              }}
+            >
+              Abrir formulario
+            </a>
           </div>
         )}
 
@@ -214,7 +242,13 @@ export default function Asistencias() {
                   )}
 
                   <div style={{ flex: 1 }}>
-                    <h3 style={{ marginTop: 0, marginBottom: "8px", color: "#0f172a" }}>
+                    <h3
+                      style={{
+                        marginTop: 0,
+                        marginBottom: "8px",
+                        color: "#0f172a",
+                      }}
+                    >
                       {item.nombre}
                     </h3>
 

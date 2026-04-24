@@ -68,8 +68,10 @@ const menuItems = [
 ];
 
 function Panel() {
+
   const cerrarSesion = () => {
     localStorage.clear();
+    sessionStorage.clear();
     window.location.href = "/";
   };
 
@@ -96,17 +98,20 @@ function Panel() {
           </nav>
         </div>
 
-        <div
-          className="sidebar-user"
-          onClick={cerrarSesion}
-          style={{ cursor: "pointer" }}
-          title="Cerrar sesión"
-        >
+        {/* 🔴 BOTÓN CERRAR SESIÓN */}
+        <div className="sidebar-user logout-user">
           <div>
-            <strong>Admin</strong>
+            <strong>Cerrar sesión</strong>
             <p>admin@correo.com</p>
           </div>
-          <span className="logout-icon">↪</span>
+
+          <span
+            className="logout-icon"
+            onClick={cerrarSesion}
+            style={{ cursor: "pointer" }}
+          >
+            ↪
+          </span>
         </div>
       </aside>
 

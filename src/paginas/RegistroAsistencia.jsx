@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import "../styles/registroAsistencia.css"
-import { API_URL } from "../config";;
+import "../styles/registroAsistencia.css";
+import { API_URL } from "../config";
 
 export default function RegistroAsistencia() {
   const { token } = useParams();
@@ -18,15 +18,35 @@ export default function RegistroAsistencia() {
       try {
         setCargando(true);
 
-        const respuestaSesion = await axios.get(`${API_URL}/api/asistencias/sesion/${token}`);
-        
+        const respuestaSesion = await axios.get(
+          `${API_URL}/api/asistencias/sesion/${token}`
+        );
 
         const datosSesion = respuestaSesion.data;
         setSesion(datosSesion);
 
-        const respuestaEstudiantes = await axios.get(`${API_URL}/api/asistencias/estudiantes-clase/${datosSesion.clase_id}`);
+        let listaEstudiantes = [];
 
-        setEstudiantes(respuestaEstudiantes.data);
+        try {
+          const respuestaEstudiantes = await axios.get(
+            `${API_URL}/api/asistencias/estudiantes-clase/${datosSesion.clase_id}`
+          );
+
+          listaEstudiantes = respuestaEstudiantes.data;
+        } catch (error) {
+          console.warn("No cargó estudiantes por clase, usando respaldo...");
+        }
+
+        if (!Array.isArray(listaEstudiantes) || listaEstudiantes.length === 0) {
+          const respuestaTodos = await axios.get(`${API_URL}/api/estudiantes`);
+
+          listaEstudiantes = respuestaTodos.data.filter(
+            (estudiante) =>
+              String(estudiante.clase_id) === String(datosSesion.clase_id)
+          );
+        }
+
+        setEstudiantes(listaEstudiantes);
       } catch (error) {
         console.error("Error al cargar datos de asistencia:", error);
         alert("No se pudo cargar la sesión o los estudiantes");
@@ -53,7 +73,9 @@ export default function RegistroAsistencia() {
     }
 
     try {
-    const respuesta = await axios.post(`${API_URL}/api/asistencias/registrar`, formData, 
+      const respuesta = await axios.post(
+        `${API_URL}/api/asistencias/registrar`,
+        formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -75,7 +97,9 @@ export default function RegistroAsistencia() {
       <div className="registro-asistencia-contenedor">
         <div className="registro-asistencia-tarjeta">
           <h1 className="registro-asistencia-titulo">Registro de Asistencia</h1>
-          <p className="registro-asistencia-subtitulo">Cargando información...</p>
+          <p className="registro-asistencia-subtitulo">
+            Cargando información...
+          </p>
         </div>
       </div>
     );
@@ -98,6 +122,7 @@ export default function RegistroAsistencia() {
           className="registro-asistencia-input"
         >
           <option value="">Selecciona tu nombre</option>
+
           {estudiantes.map((estudiante) => (
             <option key={estudiante.id} value={estudiante.id}>
               {estudiante.nombre} - {estudiante.carne}
@@ -105,7 +130,15 @@ export default function RegistroAsistencia() {
           ))}
         </select>
 
-        <label className="registro-asistencia-label">Tomar o subir selfie</label>
+        {estudiantes.length === 0 && (
+          <p style={{ color: "red", fontWeight: "bold" }}>
+            No hay estudiantes cargados para esta clase.
+          </p>
+        )}
+
+        <label className="registro-asistencia-label">
+          Tomar o subir selfie
+        </label>
 
         <input
           type="file"
@@ -115,7 +148,11 @@ export default function RegistroAsistencia() {
           className="registro-asistencia-input"
         />
 
-        <button onClick={registrar} className="registro-asistencia-boton">
+        <button
+          onClick={registrar}
+          className="registro-asistencia-boton"
+          disabled={estudiantes.length === 0}
+        >
           Registrar asistencia
         </button>
       </div>

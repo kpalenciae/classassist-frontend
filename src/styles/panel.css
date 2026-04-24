@@ -383,3 +383,17 @@ a {
 .logout-user span {
   color: white;
 }
+.logout-user {
+  background: #dc2626;
+  color: white;
+}
+
+.logout-user:hover {
+  background: #b91c1c;
+}
+
+.logout-user strong,
+.logout-user p,
+.logout-user span {
+  color: white;
+}

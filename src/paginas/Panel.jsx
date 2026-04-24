@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import "../styles/panel.css";
 import logoUMG from "../assets/umg-logo.png";
 
-
 const modulos = [
   {
     titulo: "Gestión de Clases",
@@ -69,6 +68,11 @@ const menuItems = [
 ];
 
 function Panel() {
+  const cerrarSesion = () => {
+    localStorage.clear();
+    window.location.href = "/";
+  };
+
   return (
     <div className="dashboard-layout">
       <aside className="sidebar">
@@ -92,7 +96,12 @@ function Panel() {
           </nav>
         </div>
 
-        <div className="sidebar-user">
+        <div
+          className="sidebar-user"
+          onClick={cerrarSesion}
+          style={{ cursor: "pointer" }}
+          title="Cerrar sesión"
+        >
           <div>
             <strong>Admin</strong>
             <p>admin@correo.com</p>
@@ -195,4 +204,5 @@ function Panel() {
     </div>
   );
 }
+
 export default Panel;

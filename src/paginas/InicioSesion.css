@@ -5,3 +5,19 @@
   justify-content: center;
   background: linear-gradient(135deg, #f8faff, #eef2ff);
 }
+.titulo-bienvenida {
+  font-size: 34px;
+  font-weight: 800;
+  background: linear-gradient(90deg, #2563eb, #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitulo-bienvenida,
+.login-text {
+  color: #475569;
+}
+
+.brand-icon {
+  font-size: 42px;
+}

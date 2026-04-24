@@ -13,9 +13,6 @@ export default function InicioSesion() {
   const manejarEnvio = async (e) => {
     e.preventDefault();
 
-    console.log("Intentando login...");
-    console.log("API:", API_URL);
-
     try {
       const respuesta = await axios.post(
         `${API_URL}/api/autenticacion/iniciar-sesion`,
@@ -25,12 +22,7 @@ export default function InicioSesion() {
         }
       );
 
-      console.log("Respuesta:", respuesta.data);
-
-      localStorage.setItem(
-        "usuario",
-        JSON.stringify(respuesta.data.usuario)
-      );
+      localStorage.setItem("usuario", JSON.stringify(respuesta.data.usuario));
 
       navigate("/panel");
     } catch (error) {
@@ -42,13 +34,19 @@ export default function InicioSesion() {
   return (
     <div className="login-page">
       <section className="info-panel">
-        <h1>ClassAssist Pro</h1>
+        <div className="login-brand">
+          <span className="brand-icon">🎓</span>
+          <h1 className="titulo-bienvenida">Bienvenido Catedrático</h1>
+          <p className="subtitulo-bienvenida">
+            Sistema académico para gestionar clases, estudiantes y asistencias.
+          </p>
+        </div>
       </section>
 
       <section className="login-card">
-        <h2>Bienvenido de nuevo</h2>
+        <h2>Inicio de sesión</h2>
+        <p className="login-text">Ingresa tus credenciales para continuar</p>
 
-        {/* 👇 AQUÍ ESTÁ LA CLAVE */}
         <form onSubmit={manejarEnvio}>
           <label>Correo electrónico</label>
           <input
@@ -56,6 +54,7 @@ export default function InicioSesion() {
             placeholder="tu@correo.com"
             value={correo}
             onChange={(e) => setCorreo(e.target.value)}
+            required
           />
 
           <label>Contraseña</label>
@@ -64,6 +63,7 @@ export default function InicioSesion() {
             placeholder="Ingresa tu contraseña"
             value={contrasena}
             onChange={(e) => setContrasena(e.target.value)}
+            required
           />
 
           <button type="submit">Ingresar</button>

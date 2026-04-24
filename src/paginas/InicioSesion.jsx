@@ -1,74 +1,73 @@
 import "./InicioSesion.css";
+import { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { API_URL } from "../config";
 
 export default function InicioSesion() {
+  const [correo, setCorreo] = useState("");
+  const [contrasena, setContrasena] = useState("");
+
+  const navigate = useNavigate();
+
+  const manejarEnvio = async (e) => {
+    e.preventDefault();
+
+    console.log("Intentando login...");
+    console.log("API:", API_URL);
+
+    try {
+      const respuesta = await axios.post(
+        `${API_URL}/api/autenticacion/iniciar-sesion`,
+        {
+          correo,
+          contrasena,
+        }
+      );
+
+      console.log("Respuesta:", respuesta.data);
+
+      localStorage.setItem(
+        "usuario",
+        JSON.stringify(respuesta.data.usuario)
+      );
+
+      navigate("/panel");
+    } catch (error) {
+      console.error("Error login:", error);
+      alert("Credenciales incorrectas o error de conexión");
+    }
+  };
+
   return (
     <div className="login-page">
-      <div className="decor decor-left"></div>
-      <div className="decor decor-right"></div>
-
       <section className="info-panel">
-        <div className="brand">
-          <div className="logo-circle">🎓</div>
-          <h1>ClassAssist Pro</h1>
-        </div>
-
-        <p className="description">
-          La plataforma integral para la gestión académica del catedrático.
-        </p>
-
-        <div className="feature">
-          <div className="feature-icon purple">📋</div>
-          <div>
-            <h3>Gestión de clases</h3>
-            <p>Organiza tus clases, materiales y actividades.</p>
-          </div>
-        </div>
-
-        <div className="feature">
-          <div className="feature-icon blue">📈</div>
-          <div>
-            <h3>Seguimiento académico</h3>
-            <p>Monitorea el progreso y rendimiento de tus estudiantes.</p>
-          </div>
-        </div>
-
-        <div className="feature">
-          <div className="feature-icon green">👥</div>
-          <div>
-            <h3>Comunicación efectiva</h3>
-            <p>Mantén una comunicación fluida con tus estudiantes.</p>
-          </div>
-        </div>
+        <h1>ClassAssist Pro</h1>
       </section>
 
       <section className="login-card">
-        <div className="user-icon">👤</div>
-
         <h2>Bienvenido de nuevo</h2>
-        <p className="subtitle">Inicia sesión para continuar</p>
 
-        <form>
+        {/* 👇 AQUÍ ESTÁ LA CLAVE */}
+        <form onSubmit={manejarEnvio}>
           <label>Correo electrónico</label>
-          <input type="email" placeholder="tu@correo.com" />
+          <input
+            type="email"
+            placeholder="tu@correo.com"
+            value={correo}
+            onChange={(e) => setCorreo(e.target.value)}
+          />
 
           <label>Contraseña</label>
-          <input type="password" placeholder="Ingresa tu contraseña" />
+          <input
+            type="password"
+            placeholder="Ingresa tu contraseña"
+            value={contrasena}
+            onChange={(e) => setContrasena(e.target.value)}
+          />
 
-          <div className="options">
-            <label className="remember">
-              <input type="checkbox" />
-              Recordarme
-            </label>
-
-            <a href="#">¿Olvidaste tu contraseña?</a>
-          </div>
-
-          <button type="submit">Ingresar ›</button>
+          <button type="submit">Ingresar</button>
         </form>
-
-        <p className="help">
-          ¿Necesitas ayuda? <a href="#">Contacta al administrador</a>
-        </p>
       </section>
     </div>
   );

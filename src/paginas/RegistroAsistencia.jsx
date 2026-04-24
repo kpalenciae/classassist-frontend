@@ -18,28 +18,23 @@ export default function RegistroAsistencia() {
       try {
         setCargando(true);
 
-        // 🔹 1. Obtener sesión
-        const respuestaSesion = await axios.get(
-          `${API_URL}/api/asistencias/sesion/${token}`
-        );
+        try {
+          const respuestaSesion = await axios.get(
+            `${API_URL}/api/asistencias/sesion/${token}`
+          );
+          setSesion(respuestaSesion.data);
+        } catch (errorSesion) {
+          console.warn("No se pudo cargar la sesión:", errorSesion);
+        }
 
-        const datosSesion = respuestaSesion.data;
-        setSesion(datosSesion);
-
-        // 🔹 2. Obtener TODOS los estudiantes (SIN FILTRO)
         const respuestaEstudiantes = await axios.get(
           `${API_URL}/api/estudiantes`
         );
 
-        console.log("Sesión:", datosSesion);
-        console.log("Estudiantes:", respuestaEstudiantes.data);
-
-        // 🔹 3. Mostrar todos (esto arregla tu problema)
         setEstudiantes(respuestaEstudiantes.data);
-
       } catch (error) {
-        console.error("Error al cargar datos:", error);
-        alert("Error al cargar estudiantes o sesión");
+        console.error("Error al cargar estudiantes:", error);
+        alert("No se pudieron cargar los estudiantes");
       } finally {
         setCargando(false);
       }
@@ -77,8 +72,8 @@ export default function RegistroAsistencia() {
       setEstudianteId("");
       setSelfie(null);
     } catch (error) {
-      console.error("Error al registrar:", error);
-      alert(error?.response?.data?.mensaje || "Error al registrar asistencia");
+      console.error("Error al registrar asistencia:", error);
+      alert(error?.response?.data?.mensaje || "No se pudo registrar asistencia");
     }
   };
 
@@ -86,8 +81,8 @@ export default function RegistroAsistencia() {
     return (
       <div className="registro-asistencia-contenedor">
         <div className="registro-asistencia-tarjeta">
-          <h1>Registro de Asistencia</h1>
-          <p>Cargando datos...</p>
+          <h1 className="registro-asistencia-titulo">Registro de Asistencia</h1>
+          <p>Cargando información...</p>
         </div>
       </div>
     );
@@ -96,9 +91,7 @@ export default function RegistroAsistencia() {
   return (
     <div className="registro-asistencia-contenedor">
       <div className="registro-asistencia-tarjeta">
-        <h1 className="registro-asistencia-titulo">
-          Registro de Asistencia
-        </h1>
+        <h1 className="registro-asistencia-titulo">Registro de Asistencia</h1>
 
         {sesion && (
           <p className="registro-asistencia-subtitulo">
@@ -106,7 +99,6 @@ export default function RegistroAsistencia() {
           </p>
         )}
 
-        {/* 🔽 SELECT ESTUDIANTES */}
         <select
           value={estudianteId}
           onChange={(e) => setEstudianteId(e.target.value)}
@@ -121,13 +113,6 @@ export default function RegistroAsistencia() {
           ))}
         </select>
 
-        {estudiantes.length === 0 && (
-          <p style={{ color: "red" }}>
-            No hay estudiantes cargados.
-          </p>
-        )}
-
-        {/* 📷 SELFIE */}
         <label className="registro-asistencia-label">
           Tomar o subir selfie
         </label>
@@ -140,11 +125,7 @@ export default function RegistroAsistencia() {
           className="registro-asistencia-input"
         />
 
-        {/* 🔘 BOTÓN */}
-        <button
-          onClick={registrar}
-          className="registro-asistencia-boton"
-        >
+        <button onClick={registrar} className="registro-asistencia-boton">
           Registrar asistencia
         </button>
       </div>
